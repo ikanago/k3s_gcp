@@ -1,0 +1,20 @@
+name: 'tflint'
+
+on:
+  pull_request:
+    paths:
+      - '**/*.tf'
+      - '.github/workflows/tflint.yml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run tflint
+        uses: reviewdog/action-tflint@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: 'github-pr-review'
+          fail_on_error: true
