@@ -1,9 +1,10 @@
 name: 'tflint'
 
 on:
-  main:
-    - '**/*.tf'
-    - '.github/workflows/tflint.yml'
+  push:
+    paths:
+      - '**/*.tf'
+      - '.github/workflows/tflint.yml'
   pull_request:
     paths:
       - '**/*.tf'
