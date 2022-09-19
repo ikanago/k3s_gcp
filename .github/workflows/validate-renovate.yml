@@ -10,7 +10,7 @@ jobs:
   validate-renovate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Validate
         run: docker run --rm --mount type=bind,source="$PWD"/renovate.json,target=/usr/src/app/config.json,readonly renovate/renovate:29.32.0-slim renovate-config-validator
