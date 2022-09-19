@@ -52,7 +52,7 @@ resource "google_compute_instance" "server_node" {
   }
 
   network_interface {
-    network = "default"
+    network = "k3s"
   }
 }
 
@@ -69,18 +69,43 @@ resource "google_compute_instance" "agent_node" {
   }
 
   network_interface {
-    network = "default"
+    network = "k3s"
   }
 }
 
+resource "google_compute_network" "k3s" {
+  name = "k3s"
+}
+
 resource "google_compute_firewall" "ssh" {
-  name          = "allow-ssh-from-iap"
-  network       = "default"
+  name          = "k3s-allow-ssh-from-iap"
+  network       = "k3s"
   direction     = "INGRESS"
   source_ranges = ["35.235.240.0/20"]
 
   allow {
     protocol = "tcp"
     ports    = ["22"]
+  }
+}
+
+resource "google_compute_firewall" "internal" {
+  name          = "k3s-allow-internal"
+  network       = "k3s"
+  direction     = "INGRESS"
+  source_ranges = ["10.128.0.0/9"]
+
+  allow {
+    protocol = "udp"
+    ports    = ["0-65535"]
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+
+  allow {
+    protocol = "icmp"
   }
 }
