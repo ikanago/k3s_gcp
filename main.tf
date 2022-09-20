@@ -53,7 +53,14 @@ resource "google_compute_instance" "server_node" {
 
   network_interface {
     network = "k3s"
+
+    # This attribute is necessary to create NAT mapping this instance's IP to external one.
+    access_config {}
   }
+
+  depends_on = [
+    google_compute_network.k3s
+  ]
 }
 
 resource "google_compute_instance" "agent_node" {
@@ -70,11 +77,32 @@ resource "google_compute_instance" "agent_node" {
 
   network_interface {
     network = "k3s"
+
+    access_config {}
   }
+
+  depends_on = [
+    google_compute_network.k3s
+  ]
 }
 
 resource "google_compute_network" "k3s" {
   name = "k3s"
+}
+
+resource "google_compute_firewall" "icmp" {
+  name          = "k3s-allow-icmp"
+  network       = "k3s"
+  direction     = "INGRESS"
+  source_ranges = ["0.0.0.0/0"]
+
+  allow {
+    protocol = "icmp"
+  }
+
+  depends_on = [
+    google_compute_network.k3s
+  ]
 }
 
 resource "google_compute_firewall" "ssh" {
@@ -87,6 +115,10 @@ resource "google_compute_firewall" "ssh" {
     protocol = "tcp"
     ports    = ["22"]
   }
+
+  depends_on = [
+    google_compute_network.k3s
+  ]
 }
 
 resource "google_compute_firewall" "internal" {
@@ -108,4 +140,8 @@ resource "google_compute_firewall" "internal" {
   allow {
     protocol = "icmp"
   }
+
+  depends_on = [
+    google_compute_network.k3s
+  ]
 }
