@@ -41,107 +41,55 @@ resource "random_id" "agent_instance_id" {
 
 resource "google_compute_instance" "server_node" {
   name         = "server-${random_id.server_instance_id.hex}"
-  machine_type = "e2-micro"
+  machine_type = "e2-medium"
   zone         = var.zone
+  tags         = ["k3s"]
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
       size  = 25
     }
   }
 
   network_interface {
-    network = "k3s"
+    network = "default"
 
     # This attribute is necessary to create NAT mapping this instance's IP to external one.
     access_config {}
   }
-
-  depends_on = [
-    google_compute_network.k3s
-  ]
 }
 
 resource "google_compute_instance" "agent_node" {
   name         = "agent-${random_id.agent_instance_id.hex}"
   machine_type = "e2-micro"
   zone         = var.zone
+  tags         = ["k3s"]
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-2204-lts"
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
       size  = 25
     }
   }
 
   network_interface {
-    network = "k3s"
+    network = "default"
 
     access_config {}
   }
-
-  depends_on = [
-    google_compute_network.k3s
-  ]
 }
 
-resource "google_compute_network" "k3s" {
-  name = "k3s"
-}
-
-resource "google_compute_firewall" "icmp" {
-  name          = "k3s-allow-icmp"
-  network       = "k3s"
-  direction     = "INGRESS"
-  source_ranges = ["0.0.0.0/0"]
-
-  allow {
-    protocol = "icmp"
-  }
-
-  depends_on = [
-    google_compute_network.k3s
-  ]
-}
-
-resource "google_compute_firewall" "ssh" {
-  name          = "k3s-allow-ssh-from-iap"
-  network       = "k3s"
-  direction     = "INGRESS"
-  source_ranges = ["35.235.240.0/20"]
+resource "google_compute_firewall" "k3s" {
+  name        = "default-allow-k3s"
+  network     = "default"
+  direction   = "INGRESS"
+  source_tags = ["k3s"]
+  target_tags = ["k3s"]
 
   allow {
     protocol = "tcp"
-    ports    = ["22"]
+    ports    = ["6443"]
   }
-
-  depends_on = [
-    google_compute_network.k3s
-  ]
 }
 
-resource "google_compute_firewall" "internal" {
-  name          = "k3s-allow-internal"
-  network       = "k3s"
-  direction     = "INGRESS"
-  source_ranges = ["10.128.0.0/9"]
-
-  allow {
-    protocol = "udp"
-    ports    = ["0-65535"]
-  }
-
-  allow {
-    protocol = "tcp"
-    ports    = ["0-65535"]
-  }
-
-  allow {
-    protocol = "icmp"
-  }
-
-  depends_on = [
-    google_compute_network.k3s
-  ]
-}
