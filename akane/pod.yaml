@@ -9,3 +9,5 @@ spec:
       envFrom:
         - secretRef:
             name: akane-secret
+  nodeSelector:
+    nodetype: agent
