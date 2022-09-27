@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
     - name: akane
-      image: ghcr.io/ikanago/akane.go@sha256:0e78b6e1f66a1040cc88cb55f8cc01f1efa540bcfd91d6ac26dbf4b224ec2a8c
+      image: ghcr.io/ikanago/akane.go@sha256:ebade99fb643a350287e252e3c0e9b371c07f9538729efca05c57eddd95a8d8a
       envFrom:
         - secretRef:
             name: akane-secret
