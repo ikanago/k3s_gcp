@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- pod.yaml
+images:
+- digest: sha256:21bb306e82f5a19c41315606573be4f9baee2faf792fca46d6cd593906da4f81
+  name: ghcr.io/ikanago/akane
